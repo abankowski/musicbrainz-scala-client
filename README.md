@@ -4,29 +4,34 @@ The Scala asynchronous client for MusicBrainz, based on **Play Framework WS** an
 
 ## Code Example
 
+```scala
     class MatchController @Inject() (musicbrainz: ArtistService) extends Controller {
  
-      def search(phrase: String) = Action.async {
-          def searchQuery = Builder(value).build
+def search(phrase: String) = Action.async {
+  def searchQuery = Builder(value).build
            
-          musicbrainz.search(searchQuery).map(_.toList).map(
-            Some(_)
-              .filter(_.nonEmpty)
-              .map(toJson(_))
-              .map(Ok(_))
-            .getOrElse(NoContent)))
-      }
+  musicbrainz.search(searchQuery).map(_.toList).map(
+    Some(_)
+      .filter(_.nonEmpty)
+      .map(toJson(_))
+      .map(Ok(_))
+    .getOrElse(NoContent)))
       
-      def get(id: String) = Action.async {
-        ArtistId.unapply(id)
-          .map(musicbrainz.get(_)
-            .map(_.map(toJson(_))
-              .map(Ok(_))
-              .getOrElse(NotFound)))
-          .getOrElse(successful(BadRequest))
-      }
-    }
-
+  def get(id: String) = Action.async {
+    ArtistId.unapply(id)
+      .map(musicbrainz.get(_)
+        .map(_.map(toJson(_))
+          .map(Ok(_))
+        .getOrElse(NotFound)))
+      .getOrElse(successful(BadRequest))
+    .get(_)
+      .map(_.map(toJson(_))
+        .map(Ok(_))
+        .getOrElse(NotFound)))
+      .getOrElse(successful(BadRequest))
+  }
+}
+```
 
 ## Motivation
 
