@@ -5,7 +5,7 @@ The Scala asynchronous client for MusicBrainz, based on **Play Framework WS** an
 ## Code Example
 
 ```scala
-    class MatchController @Inject() (musicbrainz: ArtistService) extends Controller {
+class MatchController @Inject() (musicbrainz: ArtistService) extends Controller {
  
 def search(phrase: String) = Action.async {
   def searchQuery = Builder(value).build
