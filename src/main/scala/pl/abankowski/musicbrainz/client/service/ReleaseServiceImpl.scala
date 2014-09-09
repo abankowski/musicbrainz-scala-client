@@ -22,6 +22,8 @@ private[service] class ReleaseServiceImpl @Inject() (config: Config, ws: WS)
         response.status match {
           case OK => Some(response.json.as[ReleaseInfo])
           case NOT_FOUND => None
+          case other if Range(500, 599).contains(other) =>
+            throw MusicBrainzServerError(other)
         })
 
   override def search(query: Query) =
@@ -29,6 +31,8 @@ private[service] class ReleaseServiceImpl @Inject() (config: Config, ws: WS)
       .map { response =>
         response.status match {
           case OK => ResourceResult.valueOf[ReleaseInfo](response.json, "releases")
+          case other if Range(500, 599).contains(other) =>
+            throw MusicBrainzServerError(other)
         }
       }
 }

@@ -17,11 +17,13 @@ private[service] class ArtistServiceImpl @Inject() (config: Config, ws: WS) exte
   with ArtistService {
 
   override def get(id: ArtistId): Future[Option[ArtistInfo]] =
-    url("/artist/" + id.value).withQueryString("inc" -> "aliases").get()
+    url("/artist/" + id.value).withQueryString("inc" -> "aliases url-rels").get()
       .map(response =>
         response.status match {
           case OK => Some(response.json.as[ArtistInfo])
           case NOT_FOUND => None
+          case other if Range(500, 599).contains(other) =>
+            throw MusicBrainzServerError(other)
         })
 
   override def search(query: Query) =
@@ -29,6 +31,8 @@ private[service] class ArtistServiceImpl @Inject() (config: Config, ws: WS) exte
       .map { response =>
         response.status match {
           case OK => ResourceResult.valueOf[ArtistInfo](response.json, "artist")
+          case other if Range(500, 599).contains(other) =>
+            throw MusicBrainzServerError(other)
         }
       }
 }

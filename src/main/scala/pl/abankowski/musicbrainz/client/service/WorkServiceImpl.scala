@@ -22,12 +22,16 @@ private[service] class WorkServiceImpl @Inject() (config: Config, ws: WS) extend
         response.status match {
           case OK => Some(response.json.as[WorkInfo])
           case NOT_FOUND => None
+          case other if Range(500, 599).contains(other) =>
+            throw MusicBrainzServerError(other)
         })
 
   override def search(query: Query) =
     url("/work").withQueryString("query" -> query).get()
-      .collect {
-        case response if response.status == OK =>
+      .map(response => response.status match {
+        case OK =>
           ResourceResult.valueOf[WorkInfo](response.json, "works")
-      }
+        case other if Range(500, 599).contains(other) =>
+          throw MusicBrainzServerError(other)
+      })
 }
