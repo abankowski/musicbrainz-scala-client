@@ -63,7 +63,7 @@ object ArtistInfo {
 
   object Relation {
     case class Url(id: String, resource: String) {
-      require(id != null, "resource cannot be null")
+      require(id != null, "id cannot be null")
       require(resource != null, "resource cannot be null")
     }
 
